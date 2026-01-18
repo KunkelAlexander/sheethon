@@ -2,9 +2,11 @@
 
 Expose local Python code via a web server and Ngrok so that you can call them in Google Sheets. 
 
+![](recording.gif)
+
 ## What this project does
 
-This vibecoding project runs a small Python web server that exposes two example functions: `ADD` and `MULTIPLY`.
+This vibecoding project runs a small Python web server that exposes two example functions: `ADD` and `MULTIPLY` that can be called in Google Sheets as `PY_MULTIPLY` and `PY_ADD`. This allows users to call locally hosted LLMs in Google Sheets, for instance.  
 
 Google Sheets can call the server through Google Apps Script. The server does not compute results immediately. Instead, it puts each request into a background queue and returns `"processing"` until the job is finished.
 
