@@ -1,20 +1,19 @@
-# main.py
 import uvicorn
-import ngrok  # pyngrok-like wrapper (depending on your library)
+import ngrok
 
 from server import create_app
+from config import ngrok_url, username, password
 
-VALID_USERNAME = "user"
-VALID_PASSWORD = "pass"
 
 if __name__ == "__main__":
-    app = create_app(valid_username=VALID_USERNAME, valid_password=VALID_PASSWORD)
+    app = create_app(valid_username=username, valid_password=password)
 
     public_url = ngrok.connect(
         addr=8000,
-        auth=f"{VALID_USERNAME}:{VALID_PASSWORD}",
+        auth=f"{username}:{password}",
         bind_tls=True,
         authtoken_from_env=True,
+        domain=ngrok_url,
     )
 
     print(f"🔗 Public URL: {public_url}")

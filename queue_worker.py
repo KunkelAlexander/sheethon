@@ -1,4 +1,3 @@
-# queue_worker.py
 from collections import deque
 import threading
 import time
@@ -56,10 +55,11 @@ def stop_worker():
         worker_thread.join()
 
 
-def submit_job(func, **kwargs) -> str:
-    job_id = str(uuid.uuid4())
-
+def submit_job(job_id: str, func, **kwargs) -> str:
     with results_lock:
+        if job_id in results:
+            # If it already exists, do not enqueue again
+            return job_id
         results[job_id] = {"status": "pending", "result": None}
 
     with queue_lock:

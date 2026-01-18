@@ -5,9 +5,9 @@ from pydantic import BaseModel
 
 from queue_worker import start_worker, submit_job, get_job
 
-# ---- Minimal math functions ----
+# Minimum example function - change these to add your own code
 def add(a: float, b: float) -> float:
-    time_to_compute = 1.0  # simulate long processing
+    time_to_compute = 10.0  # simulate long processing
     import time
     time.sleep(time_to_compute)
     return a + b
@@ -20,7 +20,7 @@ def multiply(a: float, b: float) -> float:
     return a * b
 
 
-# ---- API models ----
+# API - this needs to be adapted depending on the function you implement
 class JobRequest(BaseModel):
     op: str  # "ADD" or "MULTIPLY"
     a: float
@@ -52,10 +52,12 @@ def create_app(
     def submit(req: JobRequest, ok: bool = Depends(verify_credentials)):
         op = req.op.upper().strip()
 
+        job_key = f"{op}:{req.a}:{req.b}"
+
         if op == "ADD":
-            job_id = submit_job(add, a=req.a, b=req.b)
+            job_id = submit_job(job_key, add, a=req.a, b=req.b)
         elif op == "MULTIPLY":
-            job_id = submit_job(multiply, a=req.a, b=req.b)
+            job_id = submit_job(job_key, multiply, a=req.a, b=req.b)
         else:
             raise HTTPException(status_code=400, detail="Unsupported op (use ADD or MULTIPLY)")
 
@@ -68,7 +70,7 @@ def create_app(
         if job is None:
             raise HTTPException(status_code=404, detail="Unknown job_id")
 
-        # IMPORTANT: return "processing" until done (what you requested)
+        # return "processing" until done
         if job["status"] in ["pending", "processing"]:
             return {"status": "processing", "result": None}
 

@@ -1,1 +1,4 @@
 /.vscode
+__pycache__/config.cpython-311.pyc
+__pycache__/queue_worker.cpython-311.pyc
+__pycache__/server.cpython-311.pyc

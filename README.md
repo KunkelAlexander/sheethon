@@ -1,21 +1,24 @@
-## README
+# Sheethon
 
-### What this project does
+Expose local Python code via a web server and Ngrok so that you can call them in Google Sheets. 
 
-This project runs a small Python web server that exposes two functions: `ADD` and `MULTIPLY`.
+## What this project does
+
+This vibecoding project runs a small Python web server that exposes two example functions: `ADD` and `MULTIPLY`.
 
 Google Sheets can call the server through Google Apps Script. The server does not compute results immediately. Instead, it puts each request into a background queue and returns `"processing"` until the job is finished.
 
-The server is exposed to the internet using ngrok.
+The server is exposed to the internet using ngrok.  
 
----
+This solves two problems: 
+- Google Sheets Apps Scripts does not run locally and cannot access your local network. Therefore, you need a web server that is exposed to the internet using ngrok. Alternatively, you can run code on your own webserver, of course.
+- Google Sheets has short timeouts - it will print an error if your Apps Script function takes too much time. This is why the background queue is necessary. 
 
 ### Requirements
 
 * Python 3.9+
 * An ngrok account and auth token
 
----
 
 ### Install
 
@@ -29,17 +32,14 @@ Set your ngrok token:
 export NGROK_AUTHTOKEN="YOUR_TOKEN"
 ```
 
----
+Set up your username, password and the desired URL in `config.py`.
 
 ### Run the server
+
 
 ```bash
 python main.py
 ```
-
-This will print a public ngrok URL. Use that URL in the Google Apps Script configuration.
-
----
 
 ### API endpoints
 
