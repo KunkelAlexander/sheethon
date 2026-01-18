@@ -75,7 +75,7 @@ function runRemoteOp_(op, a, b) {
 /***************
  * HTTP CALLS
  ***************/
-function submitJob_(op, a, b) {
+ function submitJob_(op, a, b) {
   try {
     const url = BASE_URL + "/submit";
     const payload = JSON.stringify({ op: op, a: a, b: b });
@@ -86,6 +86,7 @@ function submitJob_(op, a, b) {
       payload: payload,
       headers: {
         Authorization: basicAuthHeader_(USERNAME, PASSWORD),
+        "ngrok-skip-browser-warning": "1",
       },
       muteHttpExceptions: true,
     });
@@ -111,6 +112,7 @@ function getResult_(jobId) {
       method: "get",
       headers: {
         Authorization: basicAuthHeader_(USERNAME, PASSWORD),
+        "ngrok-skip-browser-warning": "1",
       },
       muteHttpExceptions: true,
     });
@@ -122,11 +124,17 @@ function getResult_(jobId) {
       return { error: `RESULT FAILED (${code}): ${body}` };
     }
 
+    // helpful debug if HTML comes back again
+    if (!body.trim().startsWith("{")) {
+      return { error: `Non-JSON response (${code}): ${body.slice(0, 200)}` };
+    }
+
     return JSON.parse(body);
   } catch (e) {
     return { error: "RESULT EXCEPTION: " + e };
   }
 }
+
 
 
 /***************

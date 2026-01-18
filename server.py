@@ -7,7 +7,7 @@ from queue_worker import start_worker, submit_job, get_job
 
 # Minimum example function - change these to add your own code
 def add(a: float, b: float) -> float:
-    time_to_compute = 10.0  # simulate long processing
+    time_to_compute = 100.0  # simulate long processing
     import time
     time.sleep(time_to_compute)
     return a + b
@@ -53,6 +53,7 @@ def create_app(
         op = req.op.upper().strip()
 
         job_key = f"{op}:{req.a}:{req.b}"
+        print("Submit job: ", job_key)
 
         if op == "ADD":
             job_id = submit_job(job_key, add, a=req.a, b=req.b)
@@ -65,6 +66,7 @@ def create_app(
 
     @app.get("/result/{job_id}")
     def result(job_id: str, ok: bool = Depends(verify_credentials)):
+        print("Get job: ", job_id)
         job = get_job(job_id)
 
         if job is None:
