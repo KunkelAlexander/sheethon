@@ -1,12 +1,9 @@
-from collections import deque
+import queue
 import threading
-import time
-import uuid
+from typing import Any, Dict
 
-tasks_queue = deque()
-queue_lock = threading.Lock()
-
-results = {}  # job_id -> {"status": "pending|processing|done|error", "result": any}
+tasks = queue.Queue()
+results: Dict[str, Dict[str, Any]] = {}
 results_lock = threading.Lock()
 
 stop_event = threading.Event()
@@ -15,17 +12,10 @@ worker_thread = None
 
 def background_worker():
     while not stop_event.is_set():
-        item = None
-
-        with queue_lock:
-            if tasks_queue:
-                item = tasks_queue.popleft()
-
-        if item is None:
-            time.sleep(0.1)
+        try:
+            job_id, func, kwargs = tasks.get(timeout=0.1)
+        except queue.Empty:
             continue
-
-        job_id, func, kwargs = item
 
         with results_lock:
             results[job_id]["status"] = "processing"
@@ -39,6 +29,8 @@ def background_worker():
             with results_lock:
                 results[job_id]["status"] = "error"
                 results[job_id]["result"] = str(e)
+        finally:
+            tasks.task_done()
 
 
 def start_worker():
@@ -48,23 +40,13 @@ def start_worker():
     worker_thread.start()
 
 
-def stop_worker():
-    global worker_thread
-    stop_event.set()
-    if worker_thread:
-        worker_thread.join()
-
-
 def submit_job(job_id: str, func, **kwargs) -> bool:
     with results_lock:
         if job_id in results:
-            # If it already exists, do not enqueue again
             return False
         results[job_id] = {"status": "pending", "result": None, "job_id": job_id}
 
-    with queue_lock:
-        tasks_queue.append((job_id, func, kwargs))
-
+    tasks.put((job_id, func, kwargs))
     return True
 
 

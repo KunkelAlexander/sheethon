@@ -60,7 +60,6 @@ def create_app(
         # 1) Cache hit → done immediately
         cached_value = cache.get(job_id)
         if cached_value is not None:
-            print("Use cache")
             return {"status": "done", "job_id": job_id, "cached": True, "result": cached_value}
 
         # 2) If job doesn't exist yet, create it

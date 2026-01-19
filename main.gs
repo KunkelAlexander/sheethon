@@ -28,13 +28,14 @@ function compute_(op, a, b) {
   if (isNaN(a) || isNaN(b)) return "ERROR: inputs must be numbers";
 
   const res = fetchJson_("/compute", { op, a, b });
-  if (res.error) return "SERVER ERROR: " + res.error;
-  if (res.result === undefined) return "ERROR: missing result";
 
-  if (res.status === "done") return res.result;
+  const res = fetchJson_("/compute", { op, a, b });
+  if (res.error)                   return "SERVER ERROR: " + res.error;
+  if (res.result === undefined)    return "ERROR: missing result";
+  if (res.status === "done")       return res.result;
   if (res.status === "processing") return "PROCESSING";
-
-  return "ERROR: status neither done nor processing";
+  
+  return "ERROR: undefined state";
 }
 
 
