@@ -55,17 +55,17 @@ def stop_worker():
         worker_thread.join()
 
 
-def submit_job(job_id: str, func, **kwargs) -> str:
+def submit_job(job_id: str, func, **kwargs) -> bool:
     with results_lock:
         if job_id in results:
             # If it already exists, do not enqueue again
-            return job_id
-        results[job_id] = {"status": "pending", "result": None}
+            return False
+        results[job_id] = {"status": "pending", "result": None, "job_id": job_id}
 
     with queue_lock:
         tasks_queue.append((job_id, func, kwargs))
 
-    return job_id
+    return True
 
 
 def get_job(job_id: str):
